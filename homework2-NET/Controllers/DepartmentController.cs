@@ -1,18 +1,16 @@
-﻿using homework2_NET.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using homework2_NET.Models;
 using Npgsql;
-using System.Data;
 
 namespace homework2_NET.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-
-    public class CountryController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
+
         private readonly IConfiguration _configuration;
-        public CountryController(IConfiguration configuration)
+        public DepartmentController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -21,9 +19,9 @@ namespace homework2_NET.Controllers
         public JsonResult Get()
         {
             string query = @"
-                select * from public.country
+                select * from public.department
             ";
-            List<Country> countryList = new List<Country>();
+            List<Department> departmentList = new List<Department>();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -35,12 +33,11 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        Country country = new Country();
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
-                        countryList.Add(country);
+                        Department department = new Department();
+                        department.DepartmentId = (int)myReader["departmentid"];
+                        department.DeptName = (string)myReader["deptname"];
+                        department.CountryId = (int)myReader["countryid"];
+                        departmentList.Add(department);
                     }
 
 
@@ -49,15 +46,15 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(countryList);
+            return new JsonResult(departmentList);
         }
 
         [HttpGet("GetBy{id:int}")]
         public JsonResult GetByIdAsync(int id)
         {
-            string query = @"select * from public.country where countryid = " + id;
+            string query = @"select * from public.department where departmentid = " + id;
 
-            Country country = new Country();
+            Department department = new Department();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -69,10 +66,10 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
+                        department.DepartmentId = (int)myReader["departmentid"];
+                        department.DeptName = (string)myReader["deptname"];
+                        department.CountryId = (int)myReader["countryid"];
+
                     }
 
 
@@ -81,14 +78,14 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(country);
+            return new JsonResult(department);
         }
 
         [HttpGet("insert")]
-        public JsonResult InsertCountry(string name, string continent, string currency)
+        public JsonResult InsertCountry(string depid, string name, string cnid)
         {
-            string country_info = String.Format("'{0}','{1}','{2}')", name, continent, currency);
-            string query = @"insert into public.country(countryname,continent,currency) values(" + country_info;
+            string dept_info = String.Format("'{0}','{1}','{2}')", depid, name, cnid);
+            string query = @"insert into public.department(departmentid,deptname,countryid) values(" + dept_info;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -114,11 +111,11 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country added successfuly.");
+                return new JsonResult("Department added successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't added.");
+                return new JsonResult("Department can't added.");
             }
 
         }
@@ -126,7 +123,7 @@ namespace homework2_NET.Controllers
         [HttpGet("delete {id:int}")]
         public JsonResult DeleteById(int id)
         {
-            string query = @"delete from public.country where countryid = " + id;
+            string query = @"delete from public.department where departmentid = " + id;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -153,11 +150,11 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country deleted successfuly.");
+                return new JsonResult("Department deleted successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't deleted.");
+                return new JsonResult("Department can't deleted.");
             }
         }
 

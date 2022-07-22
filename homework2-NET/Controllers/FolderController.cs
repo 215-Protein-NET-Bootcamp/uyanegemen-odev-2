@@ -1,18 +1,17 @@
 ﻿using homework2_NET.Models;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Data;
 
 namespace homework2_NET.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
 
-    public class CountryController : ControllerBase
+    public class FolderController : ControllerBase
     {
+
         private readonly IConfiguration _configuration;
-        public CountryController(IConfiguration configuration)
+        public FolderController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -21,9 +20,9 @@ namespace homework2_NET.Controllers
         public JsonResult Get()
         {
             string query = @"
-                select * from public.country
+                select * from public.folder
             ";
-            List<Country> countryList = new List<Country>();
+            List<Folder> folderList = new List<Folder>();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -35,12 +34,11 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        Country country = new Country();
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
-                        countryList.Add(country);
+                        Folder folder = new Folder();
+                        folder.FolderId = (int)myReader["folderid"];
+                        folder.EmpId = (int)myReader["empid"];
+                        folder.AccessType = (string)myReader["accesstype"];
+                        folderList.Add(folder);
                     }
 
 
@@ -49,15 +47,15 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(countryList);
+            return new JsonResult(folderList);
         }
 
         [HttpGet("GetBy{id:int}")]
         public JsonResult GetByIdAsync(int id)
         {
-            string query = @"select * from public.country where countryid = " + id;
+            string query = @"select * from public.folder where folderid = " + id;
 
-            Country country = new Country();
+            Folder folder = new Folder();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -69,10 +67,10 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
+                        folder.FolderId = (int)myReader["folderid"];
+                        folder.EmpId = (int)myReader["empid"];
+                        folder.AccessType = (string)myReader["accesstype"];
+
                     }
 
 
@@ -81,14 +79,14 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(country);
+            return new JsonResult(folder);
         }
 
         [HttpGet("insert")]
-        public JsonResult InsertCountry(string name, string continent, string currency)
+        public JsonResult InsertCountry(string folderid, string empid, string accesstype)
         {
-            string country_info = String.Format("'{0}','{1}','{2}')", name, continent, currency);
-            string query = @"insert into public.country(countryname,continent,currency) values(" + country_info;
+            string folder_info = String.Format("'{0}','{1}','{2}')", folderid, empid, accesstype);
+            string query = @"insert into public.folder(folderid,empid,accesstype) values(" + folder_info;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -114,11 +112,11 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country added successfuly.");
+                return new JsonResult("Folder added successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't added.");
+                return new JsonResult("Folder can't added.");
             }
 
         }
@@ -126,7 +124,7 @@ namespace homework2_NET.Controllers
         [HttpGet("delete {id:int}")]
         public JsonResult DeleteById(int id)
         {
-            string query = @"delete from public.country where countryid = " + id;
+            string query = @"delete from public.folder where folderid = " + id;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -153,11 +151,11 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country deleted successfuly.");
+                return new JsonResult("Folder deleted successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't deleted.");
+                return new JsonResult("Folder can't deleted.");
             }
         }
 

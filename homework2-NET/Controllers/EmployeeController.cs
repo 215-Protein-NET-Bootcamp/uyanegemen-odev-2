@@ -1,18 +1,16 @@
 ﻿using homework2_NET.Models;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Data;
 
 namespace homework2_NET.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-
-    public class CountryController : ControllerBase
+    public class EmployeeController : ControllerBase
     {
+
         private readonly IConfiguration _configuration;
-        public CountryController(IConfiguration configuration)
+        public EmployeeController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -21,9 +19,9 @@ namespace homework2_NET.Controllers
         public JsonResult Get()
         {
             string query = @"
-                select * from public.country
+                select * from public.employee
             ";
-            List<Country> countryList = new List<Country>();
+            List<Employee> employeeList = new List<Employee>();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -35,12 +33,11 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        Country country = new Country();
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
-                        countryList.Add(country);
+                        Employee emp = new Employee();
+                        emp.EmpId = (int)myReader["empid"];
+                        emp.EmpName = (string)myReader["empname"];
+                        emp.DeptId = (int)myReader["deptid"];
+                        employeeList.Add(emp);
                     }
 
 
@@ -49,15 +46,15 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(countryList);
+            return new JsonResult(employeeList);
         }
 
         [HttpGet("GetBy{id:int}")]
         public JsonResult GetByIdAsync(int id)
         {
-            string query = @"select * from public.country where countryid = " + id;
+            string query = @"select * from public.employee where empid = " + id;
 
-            Country country = new Country();
+            Employee emp = new Employee();
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
             using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
@@ -69,10 +66,10 @@ namespace homework2_NET.Controllers
                     myReader = command.ExecuteReader();
                     while (myReader.Read())
                     {
-                        country.CountryId = (int)myReader["countryid"];
-                        country.CountryName = (string)myReader["countryname"];
-                        country.Continent = (string)myReader["continent"];
-                        country.Currency = (string)myReader["currency"];
+                        emp.EmpId = (int)myReader["empid"];
+                        emp.EmpName = (string)myReader["empname"];
+                        emp.DeptId = (int)myReader["deptid"];
+
                     }
 
 
@@ -81,14 +78,14 @@ namespace homework2_NET.Controllers
                 }
             }
 
-            return new JsonResult(country);
+            return new JsonResult(emp);
         }
 
         [HttpGet("insert")]
-        public JsonResult InsertCountry(string name, string continent, string currency)
+        public JsonResult InsertCountry(string empid, string name, string deptid)
         {
-            string country_info = String.Format("'{0}','{1}','{2}')", name, continent, currency);
-            string query = @"insert into public.country(countryname,continent,currency) values(" + country_info;
+            string emp_info = String.Format("'{0}','{1}','{2}')", empid, name, deptid);
+            string query = @"insert into public.employee(empid,empname,deptid) values(" + emp_info;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -114,11 +111,11 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country added successfuly.");
+                return new JsonResult("Employee added successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't added.");
+                return new JsonResult("Employee can't added.");
             }
 
         }
@@ -126,7 +123,7 @@ namespace homework2_NET.Controllers
         [HttpGet("delete {id:int}")]
         public JsonResult DeleteById(int id)
         {
-            string query = @"delete from public.country where countryid = " + id;
+            string query = @"delete from public.employee where empid = " + id;
             bool success = true;
 
             string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
@@ -153,12 +150,50 @@ namespace homework2_NET.Controllers
             }
             if (success)
             {
-                return new JsonResult("Country deleted successfuly.");
+                return new JsonResult("Employee deleted successfuly.");
             }
             else
             {
-                return new JsonResult("Country can't deleted.");
+                return new JsonResult("Employee can't deleted.");
             }
+        }
+
+        [HttpGet("EmployeeInfo")]
+        public JsonResult EmployeesInfo(int id)
+        {
+            string query = "select public.employee.empname, public.country.countryname, public.department.deptname, public.folder.accesstype from public.employee " +
+                               "inner join department on employee.deptid = department.departmentid " +
+                               "inner join folder on employee.empid = folder.empid " +
+                               "inner join country on department.countryid = country.countryid " +
+                               "where employee.empid = " + id;
+
+            EmpInfo emp_info = new EmpInfo();
+
+            string sqlDataSource = _configuration.GetConnectionString("postgreSqlCon");
+            using (NpgsqlConnection connection = new NpgsqlConnection(sqlDataSource))
+            {
+                NpgsqlDataReader myReader;
+                connection.Open();
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
+                {
+                    myReader = command.ExecuteReader();
+                    while (myReader.Read())
+                    {
+                        emp_info.EmpName = (string)myReader["empname"];
+                        emp_info.CountryName = (string)myReader["countryname"];
+                        emp_info.DeptName = (string)myReader["deptname"];
+                        emp_info.AccessType = (string)myReader["accesstype"];
+
+                    }
+
+                    myReader.Close();
+                    connection.Close();
+                }
+            }
+
+            
+
+            return new JsonResult(emp_info);
         }
 
     }
