@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\homework2-NET",
+    "\\homework2-NET\\Controllers"
   ],
-  "SelectedNode": "\\C:\\Users\\Egemen Gürdal\\Source\\Repos\\egemenuyan-odev-iki",
+  "SelectedNode": "\\homework2-NET\\Controllers\\CountryController.cs",
   "PreviewInSolutionExplorer": false
 }
