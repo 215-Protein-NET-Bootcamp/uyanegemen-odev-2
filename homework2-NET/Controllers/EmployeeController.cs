@@ -81,7 +81,7 @@ namespace homework2_NET.Controllers
             return new JsonResult(emp);
         }
 
-        [HttpGet("insert")]
+        [HttpPost("insert")]
         public JsonResult InsertCountry(string empid, string name, string deptid)
         {
             string emp_info = String.Format("'{0}','{1}','{2}')", empid, name, deptid);
@@ -120,7 +120,7 @@ namespace homework2_NET.Controllers
 
         }
 
-        [HttpGet("delete {id:int}")]
+        [HttpDelete("delete {id:int}")]
         public JsonResult DeleteById(int id)
         {
             string query = @"delete from public.employee where empid = " + id;

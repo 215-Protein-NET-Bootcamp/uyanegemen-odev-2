@@ -84,7 +84,7 @@ namespace homework2_NET.Controllers
             return new JsonResult(country);
         }
 
-        [HttpGet("insert")]
+        [HttpPost("insert")]
         public JsonResult InsertCountry(string name, string continent, string currency)
         {
             string country_info = String.Format("'{0}','{1}','{2}')", name, continent, currency);
@@ -123,7 +123,7 @@ namespace homework2_NET.Controllers
 
         }
 
-        [HttpGet("delete {id:int}")]
+        [HttpDelete("delete {id:int}")]
         public JsonResult DeleteById(int id)
         {
             string query = @"delete from public.country where countryid = " + id;
